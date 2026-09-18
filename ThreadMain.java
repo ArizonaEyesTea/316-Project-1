@@ -1,8 +1,8 @@
 import java.time.Duration;
 import java.time.Instant;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ThreadMain {
@@ -11,20 +11,27 @@ public class ThreadMain {
     static int pointsInCircle = 0;
     public static ReentrantLock lock = new ReentrantLock();
 
-    public static void main(String[] args) throws InterruptedException {
-        Instant start = Instant.now();
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
         ExecutorService es = Executors.newFixedThreadPool(threads);
         long pointsPerThread = totalPoints/threads;
+        List<Future<Integer>> resultsList = new LinkedList<>();
 
+        Instant start = Instant.now();
         for (int i = 0; i < threads; i++) {
-           es.submit(new ThreadTask(pointsPerThread));
+           Future<Integer> result = es.submit(new ThreadTask(pointsPerThread));
+           resultsList.add(result);
         }
 
+
+        Instant finish = Instant.now();
+
+        for (Future<Integer> f : resultsList) {
+            pointsInCircle += f.get();
+        }
         es.shutdown();
-        es.awaitTermination(10, TimeUnit.SECONDS);
 
         double pi = pointsInCircle/(double)totalPoints*4;
-        Instant finish = Instant.now();
+
         long timeElapsed =
                 Duration.between(start, finish).toMillis();
         System.out.println("pi="+pi);
