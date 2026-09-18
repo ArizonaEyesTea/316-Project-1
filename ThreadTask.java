@@ -2,34 +2,29 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.*;
 
 
-public class ThreadTask implements Callable<Long> {
+public class ThreadTask implements Runnable {
 
-    private long totalPoints;
-    private long pointsInCircle = 0;
+    private final long assignedPoints;
 
-    public ThreadTask(long totalPoints) {
-        this.totalPoints = totalPoints;
+    public ThreadTask(long assignedPoints) {
+        this.assignedPoints = assignedPoints;
     }
 
-
-
     @Override
-    public Long call() {
-
-        for(long i=0; i<totalPoints; i++){
-
+    public void run() {
+        for(long i = 0; i < assignedPoints; i++){
             double x = ThreadLocalRandom.current().nextDouble(0, 2);
             double y = ThreadLocalRandom.current().nextDouble(0, 2);
             double distance = Math.sqrt((x - 1) * (x - 1) + (y - 1) * (y - 1));
+
             if (distance <= 1) {
-                pointsInCircle++;
+                ThreadMain.lock.lock();
+                try {
+                    ThreadMain.pointsInCircle++;
+                } finally {
+                    ThreadMain.lock.unlock();
+                }
             }
-    }
-
-
-        return pointsInCircle;
-
-
-
+        }
     }
 }
