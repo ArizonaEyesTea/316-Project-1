@@ -2,7 +2,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.*;
 
 
-public class ThreadTask implements Callable<Integer> {
+public class ThreadTask implements Callable<Long> {
 
     private final long assignedPoints;
 
@@ -11,8 +11,8 @@ public class ThreadTask implements Callable<Integer> {
     }
 
     @Override
-    public Integer call() {
-        Integer numberOfPointsInCircle = 0;
+    public Long call() {
+        Long numberOfPointsInCircle = 0L;
         for(long i = 0; i < assignedPoints; i++){
             double x = ThreadLocalRandom.current().nextDouble(0, 2);
             double y = ThreadLocalRandom.current().nextDouble(0, 2);

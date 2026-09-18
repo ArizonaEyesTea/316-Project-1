@@ -6,29 +6,27 @@ import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ThreadMain {
-    private static final long totalPoints = 1_000_000;
+    private static final long totalPoints = 10_000_000_000L;
     static final int threads = 4;
-    static int pointsInCircle = 0;
+    static Long pointsInCircle = 0L;
     public static ReentrantLock lock = new ReentrantLock();
 
     public static void main(String[] args) throws InterruptedException, ExecutionException {
         ExecutorService es = Executors.newFixedThreadPool(threads);
         long pointsPerThread = totalPoints/threads;
-        List<Future<Integer>> resultsList = new LinkedList<>();
+        List<Future<Long>> resultsList = new LinkedList<>();
 
         Instant start = Instant.now();
         for (int i = 0; i < threads; i++) {
-           Future<Integer> result = es.submit(new ThreadTask(pointsPerThread));
+           Future<Long> result = es.submit(new ThreadTask(pointsPerThread));
            resultsList.add(result);
         }
 
-
-        Instant finish = Instant.now();
-
-        for (Future<Integer> f : resultsList) {
+        for (Future<Long> f : resultsList) {
             pointsInCircle += f.get();
         }
         es.shutdown();
+        Instant finish = Instant.now();
 
         double pi = pointsInCircle/(double)totalPoints*4;
 
